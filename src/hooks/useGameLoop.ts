@@ -94,6 +94,47 @@ export const useGameLoop = (
         newState.pawPrints = newState.pawPrints.slice(-200);
       }
 
+      // Spawn sushi occasionally (every 20-40 seconds)
+      const SUSHI_SPAWN_MIN = 20000;
+      const SUSHI_SPAWN_MAX = 40000;
+      if (!newState.sushi && timestamp - newState.lastSushiSpawn > SUSHI_SPAWN_MIN) {
+        const shouldSpawn = Math.random() < 0.01; // 1% chance per frame after minimum time
+        if (shouldSpawn || timestamp - newState.lastSushiSpawn > SUSHI_SPAWN_MAX) {
+          // Spawn sushi at random position
+          newState.sushi = {
+            position: {
+              x: Math.random() * (GAME_CONFIG.CANVAS_WIDTH - 40) + 20,
+              y: Math.random() * (GAME_CONFIG.CANVAS_HEIGHT - 40) + 20
+            },
+            isActive: true,
+            animationFrame: 0
+          };
+          newState.lastSushiSpawn = timestamp;
+          console.log('SUSHI SPAWNED!');
+        }
+      }
+
+      // Animate sushi
+      if (newState.sushi && newState.sushi.isActive) {
+        newState.sushi.animationFrame = (newState.sushi.animationFrame + 0.1) % (Math.PI * 2);
+
+        // Check if rake collects sushi
+        const dx = newState.rakePosition.x - newState.sushi.position.x;
+        const dy = newState.rakePosition.y - newState.sushi.position.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance < GAME_CONFIG.RAKE_SIZE + 20) {
+          // Collected sushi!
+          console.log('SUSHI COLLECTED!');
+          newState.sushi = null;
+          newState.placementsAvailable += 1;
+          // Could show a selection UI here, for now just cycle through options
+          if (newState.placementMode === 'none') {
+            newState.placementMode = 'rock';
+          }
+        }
+      }
+
       // Log input state periodically
       if (timestamp % 1000 < 20) {
         console.log('GAMELOOP: inputState.isMouseDown =', inputStateRef.current.isMouseDown, 'mousePos:', inputStateRef.current.mousePosition);

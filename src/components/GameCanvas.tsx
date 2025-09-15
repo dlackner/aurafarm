@@ -254,6 +254,61 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
 
     ctx.restore();
 
+    // Draw sushi if active
+    if (gameState.sushi && gameState.sushi.isActive) {
+      const sushi = gameState.sushi;
+
+      // Floating animation
+      const floatY = Math.sin(sushi.animationFrame) * 3;
+
+      // Draw pixelated sushi
+      ctx.fillStyle = '#ffffff'; // Rice (white)
+      ctx.fillRect(sushi.position.x, sushi.position.y + floatY, 24, 16);
+
+      // Salmon (orange/pink)
+      ctx.fillStyle = '#ff6b6b';
+      ctx.fillRect(sushi.position.x + 2, sushi.position.y + floatY - 4, 20, 6);
+
+      // Nori stripe (dark green)
+      ctx.fillStyle = '#2d4a2d';
+      ctx.fillRect(sushi.position.x + 10, sushi.position.y + floatY - 4, 4, 20);
+
+      // Sparkle effect
+      ctx.fillStyle = '#ffff00';
+      const sparkleOffset = Math.floor(sushi.animationFrame * 2) % 3;
+      ctx.fillRect(sushi.position.x + sparkleOffset * 8, sushi.position.y + floatY - 8, 2, 2);
+    }
+
+    // Draw placement mode UI
+    if (gameState.placementMode !== 'none' && gameState.placementsAvailable > 0) {
+      // Draw placement indicator at mouse position
+      ctx.save();
+      ctx.globalAlpha = 0.5;
+      ctx.strokeStyle = '#00ff00';
+      ctx.lineWidth = 2;
+
+      const width = gameState.placementMode === 'pond' ? 96 : gameState.placementMode === 'tree' ? 48 : 36;
+      const height = gameState.placementMode === 'pond' ? 72 : gameState.placementMode === 'tree' ? 60 : 36;
+
+      ctx.strokeRect(
+        gameState.rakePosition.x - width/2,
+        gameState.rakePosition.y - height/2,
+        width,
+        height
+      );
+
+      ctx.restore();
+
+      // Draw placement mode text
+      ctx.fillStyle = '#00ff00';
+      ctx.font = 'bold 12px monospace';
+      ctx.fillText(
+        `Place ${gameState.placementMode} (${gameState.placementsAvailable} left) Click to place, +20 aura!`,
+        10,
+        GAME_CONFIG.CANVAS_HEIGHT - 10
+      );
+    }
+
     // Draw paw prints on the pattern canvas (so they persist)
     const patternCtx = patternCanvas.getContext('2d');
     if (patternCtx && gameState.pawPrints.length > 0) {

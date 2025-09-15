@@ -30,6 +30,14 @@ export interface PawPrint {
   age: number;
 }
 
+export interface Sushi {
+  position: Position;
+  isActive: boolean;
+  animationFrame: number;
+}
+
+export type PlacementMode = 'none' | 'rock' | 'tree' | 'pond';
+
 export interface GameState {
   rakePosition: Position;
   aura: number;
@@ -43,6 +51,10 @@ export interface GameState {
   dog: Dog | null;
   pawPrints: PawPrint[];
   lastDogSpawn: number;
+  sushi: Sushi | null;
+  lastSushiSpawn: number;
+  placementMode: PlacementMode;
+  placementsAvailable: number;
 }
 
 export interface InputState {

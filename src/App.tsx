@@ -21,6 +21,10 @@ function App() {
     dog: null,
     pawPrints: [],
     lastDogSpawn: 0,
+    sushi: null,
+    lastSushiSpawn: 0,
+    placementMode: 'none',
+    placementsAvailable: 0,
   });
 
   const [inputState, setInputState] = useState<InputState>({
@@ -60,13 +64,66 @@ function App() {
 
   const handleMouseDown = useCallback(() => {
     console.log('APP: Mouse down detected');
+
+    // Check if we're in placement mode
+    if (gameState.placementMode !== 'none' && gameState.placementsAvailable > 0) {
+      const mousePos = inputState.mousePosition;
+
+      // Place a new garden object at mouse position
+      const newObject = {
+        id: `placed-${Date.now()}`,
+        position: {
+          x: Math.max(0, Math.min(mousePos.x - 24, GAME_CONFIG.CANVAS_WIDTH - 48)),
+          y: Math.max(0, Math.min(mousePos.y - 30, GAME_CONFIG.CANVAS_HEIGHT - 60))
+        },
+        width: gameState.placementMode === 'pond' ? 96 : gameState.placementMode === 'tree' ? 48 : 36,
+        height: gameState.placementMode === 'pond' ? 72 : gameState.placementMode === 'tree' ? 60 : 36,
+        type: gameState.placementMode as 'rock' | 'tree' | 'pond'
+      };
+
+      setGameState(prev => ({
+        ...prev,
+        gardenObjects: [...prev.gardenObjects, newObject],
+        placementsAvailable: prev.placementsAvailable - 1,
+        placementMode: prev.placementsAvailable > 1 ? prev.placementMode : 'none',
+        aura: Math.min(prev.maxAura, prev.aura + 20) // +20 aura bonus
+      }));
+
+      return; // Don't start dragging when placing
+    }
+
     setInputState(prev => ({ ...prev, isMouseDown: true }));
-  }, []);
+  }, [gameState.placementMode, gameState.placementsAvailable, inputState.mousePosition]);
 
   const handleMouseUp = useCallback(() => {
     console.log('APP: Mouse up detected');
     setInputState(prev => ({ ...prev, isMouseDown: false }));
   }, []);
+
+  // Add keyboard controls for placement mode
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (gameState.placementsAvailable > 0) {
+        switch(e.key) {
+          case '1':
+            setGameState(prev => ({ ...prev, placementMode: 'rock' }));
+            break;
+          case '2':
+            setGameState(prev => ({ ...prev, placementMode: 'tree' }));
+            break;
+          case '3':
+            setGameState(prev => ({ ...prev, placementMode: 'pond' }));
+            break;
+          case 'Escape':
+            setGameState(prev => ({ ...prev, placementMode: 'none' }));
+            break;
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [gameState.placementsAvailable]);
 
   // Add debug logging for state changes
   useEffect(() => {
@@ -91,6 +148,10 @@ function App() {
       dog: null,
       pawPrints: [],
       lastDogSpawn: 0,
+      sushi: null,
+      lastSushiSpawn: 0,
+      placementMode: 'none',
+      placementsAvailable: 0,
     });
   }, []);
 
@@ -113,7 +174,8 @@ function App() {
         />
       </div>
       <div className="instructions">
-        Click and drag to rake the sand • Avoid rocks, trees, and ponds • Maintain your aura
+        Click and drag to rake the sand • Avoid rocks, trees, and ponds • Collect sushi 🍣 to place new elements (+20 aura!)
+        {gameState.placementsAvailable > 0 && " • Press 1:Rock 2:Tree 3:Pond ESC:Cancel"}
       </div>
     </div>
   );
