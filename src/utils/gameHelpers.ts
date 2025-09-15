@@ -1,15 +1,15 @@
 import { GameObject, Position, RakePattern } from '../types/game';
 
-// Responsive canvas sizing
+// Responsive canvas sizing - smaller, more focused garden
 const getCanvasSize = () => {
-  const maxWidth = Math.min(window.innerWidth - 40, 800);
-  const maxHeight = Math.min(window.innerHeight - 200, 600);
+  const maxWidth = Math.min(window.innerWidth - 40, 500);  // Reduced from 800
+  const maxHeight = Math.min(window.innerHeight - 200, 400);  // Reduced from 600
 
   // Mobile portrait mode
   if (window.innerWidth < 768) {
     return {
-      width: window.innerWidth - 20,
-      height: Math.min(window.innerHeight - 150, 600)
+      width: Math.min(window.innerWidth - 20, 400),
+      height: Math.min(window.innerHeight - 150, 350)
     };
   }
 
@@ -21,8 +21,8 @@ const canvasSize = getCanvasSize();
 export const GAME_CONFIG = {
   CANVAS_WIDTH: canvasSize.width,
   CANVAS_HEIGHT: canvasSize.height,
-  TILE_SIZE: 8,
-  RAKE_SIZE: 24,
+  TILE_SIZE: 12,  // Bigger tiles (was 8)
+  RAKE_SIZE: 36,  // Bigger rake (was 24)
   MAX_PATTERNS: 10000,
   PATTERN_FADE_SPEED: 0,  // No fade - patterns stay forever
   SAND_RESET_SPEED: 0,  // No automatic reset
@@ -44,13 +44,14 @@ export const checkCollision = (
 
 export const generateGardenObjects = (): GameObject[] => {
   const objects: GameObject[] = [];
-  const objectCount = Math.floor(Math.random() * 4) + 5;
+  const objectCount = Math.floor(Math.random() * 2) + 3;  // 3-4 objects (fewer for smaller garden)
 
   for (let i = 0; i < objectCount; i++) {
     const type = (['rock', 'tree', 'pond'] as const)[Math.floor(Math.random() * 3)];
-    const size = type === 'pond' ? { width: 64, height: 48 } :
-                 type === 'tree' ? { width: 32, height: 40 } :
-                 { width: 24, height: 24 };
+    // Scaled up obstacles (50% bigger)
+    const size = type === 'pond' ? { width: 96, height: 72 } :
+                 type === 'tree' ? { width: 48, height: 60 } :
+                 { width: 36, height: 36 };
 
     objects.push({
       id: `object-${i}`,

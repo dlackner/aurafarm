@@ -258,19 +258,19 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     const patternCtx = patternCanvas.getContext('2d');
     if (patternCtx && gameState.pawPrints.length > 0) {
       gameState.pawPrints.forEach(paw => {
-        // Draw small paw print
+        // Draw larger paw print (scaled up 50%)
         patternCtx.fillStyle = 'rgba(60, 40, 20, 0.4)';
         // Main pad
         patternCtx.beginPath();
-        patternCtx.arc(paw.position.x, paw.position.y, 3, 0, Math.PI * 2);
+        patternCtx.arc(paw.position.x, paw.position.y, 5, 0, Math.PI * 2);
         patternCtx.fill();
         // Toe pads
         for (let i = 0; i < 3; i++) {
           patternCtx.beginPath();
           patternCtx.arc(
-            paw.position.x + (i - 1) * 3,
-            paw.position.y - 4,
-            1.5,
+            paw.position.x + (i - 1) * 5,
+            paw.position.y - 7,
+            2.5,
             0,
             Math.PI * 2
           );
@@ -283,56 +283,56 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     if (gameState.dog && gameState.dog.isActive) {
       const dog = gameState.dog;
 
-      // Clear area around dog
-      const dogClearSize = 40;
+      // Clear area around dog (bigger for larger dog)
+      const dogClearSize = 60;
       ctx.save();
       const dogGradient = ctx.createLinearGradient(
-        dog.position.x - 5,
-        dog.position.y - 5,
+        dog.position.x - 10,
+        dog.position.y - 10,
         dog.position.x + dogClearSize,
         dog.position.y + dogClearSize
       );
       dogGradient.addColorStop(0, '#F5DEB3');
       dogGradient.addColorStop(1, '#E6C995');
       ctx.fillStyle = dogGradient;
-      ctx.fillRect(dog.position.x - 5, dog.position.y - 5, dogClearSize, dogClearSize);
+      ctx.fillRect(dog.position.x - 10, dog.position.y - 10, dogClearSize, dogClearSize);
 
-      // Draw pixelated black dog
+      // Draw pixelated black dog (scaled up 50%)
       ctx.fillStyle = '#1a1a1a';
 
       // Body
-      ctx.fillRect(dog.position.x, dog.position.y, 20, 12);
+      ctx.fillRect(dog.position.x, dog.position.y, 30, 18);
 
       // Head
       ctx.fillRect(
-        dog.facingRight ? dog.position.x + 16 : dog.position.x - 6,
-        dog.position.y - 2,
-        8,
-        8
+        dog.facingRight ? dog.position.x + 24 : dog.position.x - 9,
+        dog.position.y - 3,
+        12,
+        12
       );
 
       // Tail
       ctx.fillRect(
-        dog.facingRight ? dog.position.x - 4 : dog.position.x + 20,
-        dog.position.y - 2,
-        4,
-        4
+        dog.facingRight ? dog.position.x - 6 : dog.position.x + 30,
+        dog.position.y - 3,
+        6,
+        6
       );
 
       // Legs (animated)
-      const legOffset = Math.sin(dog.animationFrame * Math.PI / 2) * 2;
-      ctx.fillRect(dog.position.x + 2, dog.position.y + 10, 3, 6 + legOffset);
-      ctx.fillRect(dog.position.x + 8, dog.position.y + 10, 3, 6 - legOffset);
-      ctx.fillRect(dog.position.x + 12, dog.position.y + 10, 3, 6 + legOffset);
-      ctx.fillRect(dog.position.x + 16, dog.position.y + 10, 3, 6 - legOffset);
+      const legOffset = Math.sin(dog.animationFrame * Math.PI / 2) * 3;
+      ctx.fillRect(dog.position.x + 3, dog.position.y + 15, 4, 9 + legOffset);
+      ctx.fillRect(dog.position.x + 12, dog.position.y + 15, 4, 9 - legOffset);
+      ctx.fillRect(dog.position.x + 18, dog.position.y + 15, 4, 9 + legOffset);
+      ctx.fillRect(dog.position.x + 24, dog.position.y + 15, 4, 9 - legOffset);
 
       // Eye (white dot)
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(
-        dog.facingRight ? dog.position.x + 20 : dog.position.x - 2,
+        dog.facingRight ? dog.position.x + 30 : dog.position.x - 3,
         dog.position.y,
-        2,
-        2
+        3,
+        3
       );
 
       ctx.restore();
