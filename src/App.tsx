@@ -28,13 +28,30 @@ function App() {
 
   useGameLoop(gameState, setGameState, inputState);
 
-  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
+
+    // Handle both mouse and touch events
+    let clientX: number, clientY: number;
+    if ('touches' in e) {
+      // Touch event
+      if (e.touches.length > 0) {
+        clientX = e.touches[0].clientX;
+        clientY = e.touches[0].clientY;
+      } else {
+        return;
+      }
+    } else {
+      // Mouse event
+      clientX = e.clientX;
+      clientY = e.clientY;
+    }
+
     setInputState(prev => ({
       ...prev,
       mousePosition: {
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
+        x: clientX - rect.left,
+        y: clientY - rect.top,
       },
     }));
   }, []);

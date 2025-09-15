@@ -4,7 +4,7 @@ import { GAME_CONFIG } from '../utils/gameHelpers';
 
 interface GameCanvasProps {
   gameState: GameState;
-  onMouseMove: (e: React.MouseEvent<HTMLDivElement>) => void;
+  onMouseMove: (e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>) => void;
   onMouseDown: () => void;
   onMouseUp: () => void;
 }
@@ -274,19 +274,47 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     onMouseUp();
   };
 
+  // Touch event handlers for mobile
+  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const touch = e.touches[0];
+    const rect = e.currentTarget.getBoundingClientRect();
+    const touchEvent = {
+      clientX: touch.clientX,
+      clientY: touch.clientY,
+      currentTarget: e.currentTarget
+    } as any;
+    onMouseMove(touchEvent);
+    handleMouseDown();
+  };
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    onMouseMove(e);
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    handleMouseUp();
+  };
+
   return (
     <div
       className="game-canvas-container"
       style={{
-        cursor: 'none',
+        cursor: window.innerWidth > 768 ? 'none' : 'default',
         width: GAME_CONFIG.CANVAS_WIDTH,
         height: GAME_CONFIG.CANVAS_HEIGHT,
-        position: 'relative'
+        position: 'relative',
+        touchAction: 'none'
       }}
       onMouseMove={onMouseMove}
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseLeave}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
     >
       <canvas
         ref={backgroundCanvasRef}

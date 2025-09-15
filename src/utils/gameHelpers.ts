@@ -1,8 +1,26 @@
 import { GameObject, Position, RakePattern } from '../types/game';
 
+// Responsive canvas sizing
+const getCanvasSize = () => {
+  const maxWidth = Math.min(window.innerWidth - 40, 800);
+  const maxHeight = Math.min(window.innerHeight - 200, 600);
+
+  // Mobile portrait mode
+  if (window.innerWidth < 768) {
+    return {
+      width: window.innerWidth - 20,
+      height: Math.min(window.innerHeight - 150, 600)
+    };
+  }
+
+  return { width: maxWidth, height: maxHeight };
+};
+
+const canvasSize = getCanvasSize();
+
 export const GAME_CONFIG = {
-  CANVAS_WIDTH: 800,
-  CANVAS_HEIGHT: 600,
+  CANVAS_WIDTH: canvasSize.width,
+  CANVAS_HEIGHT: canvasSize.height,
   TILE_SIZE: 8,
   RAKE_SIZE: 24,
   MAX_PATTERNS: 10000,
