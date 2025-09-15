@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # Replace YOUR_GITHUB_USERNAME with your actual GitHub username
-GITHUB_USERNAME="YOUR_GITHUB_USERNAME"
+GITHUB_USERNAME="dlackner"
 
-# Add the remote origin
-git remote add origin "https://github.com/${GITHUB_USERNAME}/aurafarm.git"
+# Add the remote origin (using SSH)
+git remote add origin "git@github.com:${GITHUB_USERNAME}/aurafarm.git"
 
 # Push to GitHub
 git branch -M main
