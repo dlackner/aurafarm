@@ -254,6 +254,90 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
 
     ctx.restore();
 
+    // Draw paw prints on the pattern canvas (so they persist)
+    const patternCtx = patternCanvas.getContext('2d');
+    if (patternCtx && gameState.pawPrints.length > 0) {
+      gameState.pawPrints.forEach(paw => {
+        // Draw small paw print
+        patternCtx.fillStyle = 'rgba(60, 40, 20, 0.4)';
+        // Main pad
+        patternCtx.beginPath();
+        patternCtx.arc(paw.position.x, paw.position.y, 3, 0, Math.PI * 2);
+        patternCtx.fill();
+        // Toe pads
+        for (let i = 0; i < 3; i++) {
+          patternCtx.beginPath();
+          patternCtx.arc(
+            paw.position.x + (i - 1) * 3,
+            paw.position.y - 4,
+            1.5,
+            0,
+            Math.PI * 2
+          );
+          patternCtx.fill();
+        }
+      });
+    }
+
+    // Draw dog if active
+    if (gameState.dog && gameState.dog.isActive) {
+      const dog = gameState.dog;
+
+      // Clear area around dog
+      const dogClearSize = 40;
+      ctx.save();
+      const dogGradient = ctx.createLinearGradient(
+        dog.position.x - 5,
+        dog.position.y - 5,
+        dog.position.x + dogClearSize,
+        dog.position.y + dogClearSize
+      );
+      dogGradient.addColorStop(0, '#F5DEB3');
+      dogGradient.addColorStop(1, '#E6C995');
+      ctx.fillStyle = dogGradient;
+      ctx.fillRect(dog.position.x - 5, dog.position.y - 5, dogClearSize, dogClearSize);
+
+      // Draw pixelated black dog
+      ctx.fillStyle = '#1a1a1a';
+
+      // Body
+      ctx.fillRect(dog.position.x, dog.position.y, 20, 12);
+
+      // Head
+      ctx.fillRect(
+        dog.facingRight ? dog.position.x + 16 : dog.position.x - 6,
+        dog.position.y - 2,
+        8,
+        8
+      );
+
+      // Tail
+      ctx.fillRect(
+        dog.facingRight ? dog.position.x - 4 : dog.position.x + 20,
+        dog.position.y - 2,
+        4,
+        4
+      );
+
+      // Legs (animated)
+      const legOffset = Math.sin(dog.animationFrame * Math.PI / 2) * 2;
+      ctx.fillRect(dog.position.x + 2, dog.position.y + 10, 3, 6 + legOffset);
+      ctx.fillRect(dog.position.x + 8, dog.position.y + 10, 3, 6 - legOffset);
+      ctx.fillRect(dog.position.x + 12, dog.position.y + 10, 3, 6 + legOffset);
+      ctx.fillRect(dog.position.x + 16, dog.position.y + 10, 3, 6 - legOffset);
+
+      // Eye (white dot)
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(
+        dog.facingRight ? dog.position.x + 20 : dog.position.x - 2,
+        dog.position.y,
+        2,
+        2
+      );
+
+      ctx.restore();
+    }
+
   }, [gameState]);
 
   const handleMouseDown = () => {
@@ -278,7 +362,6 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
   const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
     e.preventDefault();
     const touch = e.touches[0];
-    const rect = e.currentTarget.getBoundingClientRect();
     const touchEvent = {
       clientX: touch.clientX,
       clientY: touch.clientY,

@@ -29,10 +29,70 @@ export const useGameLoop = (
       let newState = {
         ...prevState,
         rakePatterns: [...prevState.rakePatterns],  // Make sure to copy the array
+        pawPrints: [...prevState.pawPrints],
       };
       newState.isColliding = false;
 
       console.log('GAMELOOP: Copied patterns:', newState.rakePatterns.length);
+
+      // Spawn dog occasionally (every 15-30 seconds)
+      const DOG_SPAWN_MIN = 15000;
+      const DOG_SPAWN_MAX = 30000;
+      if (!newState.dog && timestamp - newState.lastDogSpawn > DOG_SPAWN_MIN) {
+        const shouldSpawn = Math.random() < 0.02; // 2% chance per frame after minimum time
+        if (shouldSpawn || timestamp - newState.lastDogSpawn > DOG_SPAWN_MAX) {
+          // Spawn dog from left or right side
+          const fromRight = Math.random() > 0.5;
+          newState.dog = {
+            position: {
+              x: fromRight ? GAME_CONFIG.CANVAS_WIDTH + 30 : -30,
+              y: Math.random() * (GAME_CONFIG.CANVAS_HEIGHT - 100) + 50
+            },
+            velocity: { x: fromRight ? -2 : 2, y: 0 },
+            isActive: true,
+            animationFrame: 0,
+            facingRight: !fromRight
+          };
+          newState.lastDogSpawn = timestamp;
+          console.log('DOG SPAWNED!');
+        }
+      }
+
+      // Update dog movement and create paw prints
+      if (newState.dog && newState.dog.isActive) {
+        // Move dog
+        newState.dog.position.x += newState.dog.velocity.x;
+        newState.dog.animationFrame = (newState.dog.animationFrame + 0.2) % 4;
+
+        // Add paw prints every few pixels
+        if (Math.floor(newState.dog.position.x) % 15 === 0) {
+          // Add two paw prints (front and back paws)
+          newState.pawPrints.push({
+            position: {
+              x: newState.dog.position.x - 5,
+              y: newState.dog.position.y + 10
+            },
+            age: 0
+          });
+          newState.pawPrints.push({
+            position: {
+              x: newState.dog.position.x + 5,
+              y: newState.dog.position.y + 15
+            },
+            age: 0
+          });
+        }
+
+        // Remove dog when it goes off screen
+        if (newState.dog.position.x < -50 || newState.dog.position.x > GAME_CONFIG.CANVAS_WIDTH + 50) {
+          newState.dog = null;
+        }
+      }
+
+      // Limit paw prints
+      if (newState.pawPrints.length > 200) {
+        newState.pawPrints = newState.pawPrints.slice(-200);
+      }
 
       // Log input state periodically
       if (timestamp % 1000 < 20) {

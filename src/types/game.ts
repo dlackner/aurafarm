@@ -17,6 +17,19 @@ export interface RakePattern {
   age: number;
 }
 
+export interface Dog {
+  position: Position;
+  velocity: { x: number; y: number };
+  isActive: boolean;
+  animationFrame: number;
+  facingRight: boolean;
+}
+
+export interface PawPrint {
+  position: Position;
+  age: number;
+}
+
 export interface GameState {
   rakePosition: Position;
   aura: number;
@@ -27,6 +40,9 @@ export interface GameState {
   sandResetProgress: number;
   isColliding: boolean;
   lastCollisionTime: number;
+  dog: Dog | null;
+  pawPrints: PawPrint[];
+  lastDogSpawn: number;
 }
 
 export interface InputState {

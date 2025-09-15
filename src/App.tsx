@@ -3,7 +3,6 @@ import './App.css';
 import { GameCanvas } from './components/GameCanvas';
 import { HUD } from './components/HUD';
 import { AudioPlayer } from './components/AudioPlayer';
-import { TestPatterns } from './components/TestPatterns';
 import { useGameLoop } from './hooks/useGameLoop';
 import { GameState, InputState } from './types/game';
 import { generateGardenObjects, GAME_CONFIG } from './utils/gameHelpers';
@@ -19,6 +18,9 @@ function App() {
     sandResetProgress: 0,
     isColliding: false,
     lastCollisionTime: 0,
+    dog: null,
+    pawPrints: [],
+    lastDogSpawn: 0,
   });
 
   const [inputState, setInputState] = useState<InputState>({
@@ -86,6 +88,9 @@ function App() {
       sandResetProgress: 0,
       isColliding: false,
       lastCollisionTime: 0,
+      dog: null,
+      pawPrints: [],
+      lastDogSpawn: 0,
     });
   }, []);
 
