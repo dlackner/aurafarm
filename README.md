@@ -1,18 +1,23 @@
-# AuraFarm - Zen Garden Raking Game
+# 🌸 AuraFarm - Zen Garden Raking Game
 
-A pixelated zen garden game where you rake sand patterns while avoiding obstacles to maintain your aura.
+A relaxing pixelated zen garden game where you rake sand patterns while maintaining your aura. Built with React and TypeScript.
 
-## Features
+## 🎮 How to Play
 
-- Pixelated zen garden aesthetic
-- Dynamic sand raking patterns
-- Obstacle avoidance (rocks, trees, ponds)
-- Aura system - hitting obstacles reduces your aura
-- Auto-resetting sand patterns for continuous play
-- Lo-fi background music
-- No levels - just pure zen gameplay
+- **Click and drag** to move the rake through the sand
+- Create beautiful patterns in the sand as you rake
+- **Avoid** rocks, trees, and ponds - hitting them decreases your aura
+- **Gain aura** by continuously raking the sand
+- Watch your patterns persist as you create your zen garden
 
-## Local Development
+## 🏗️ Tech Stack
+
+- React 18 with TypeScript
+- HTML5 Canvas for rendering
+- Express.js for production server
+- Deployed on Render
+
+## 🚀 Local Development
 
 ```bash
 # Install dependencies
@@ -23,34 +28,64 @@ npm start
 
 # Build for production
 npm run build
-
-# Run production server locally
-npm run start:prod
 ```
 
-## Deployment to Render
+## 📦 Deployment on Render
 
-1. Push your code to GitHub
-2. Connect your GitHub repo to Render
-3. Render will automatically detect the `render.yaml` configuration
-4. The app will build and deploy automatically
+### Automatic Deployment
 
-Or manually deploy:
-- Build Command: `npm install && npm run build`
-- Start Command: `npm run start:prod`
+This project includes a `render.yaml` configuration file for easy deployment:
 
-## How to Play
+1. Fork/clone this repository to your GitHub account
+2. Go to [Render Dashboard](https://dashboard.render.com)
+3. Click "New +" and select "Web Service"
+4. Connect your GitHub account and select this repository
+5. Render will automatically detect the configuration
+6. Click "Create Web Service"
 
-- Click and drag to move the rake through the sand
-- Create beautiful patterns as you rake
-- Avoid hitting rocks, trees, and ponds
-- Hitting obstacles reduces your aura
-- When aura reaches 0, the game ends
-- Click "Find Inner Peace Again" to restart
+### Manual Deployment
 
-## Technologies
+If you prefer manual configuration:
 
-- React with TypeScript
-- HTML5 Canvas for rendering
-- Express.js for production server
-- Deployed on Render
+1. Create a new Web Service on Render
+2. Connect your GitHub repository
+3. Use these settings:
+   - **Build Command**: `npm install && npm run build`
+   - **Start Command**: `node server.js`
+   - **Environment**: Node
+
+## 🎨 Features
+
+- **Persistent Rake Patterns**: Your rake marks stay visible on the sand
+- **Pixelated Aesthetic**: Retro-style pixel art graphics
+- **Zen Color Palette**: Calming sandy browns and natural tones
+- **Dynamic Aura System**: Manage your spiritual energy while raking
+- **Collision Detection**: Interactive obstacles to avoid
+- **Fullscreen Gameplay**: Immersive zen garden experience
+
+## 🎵 Audio
+
+The game includes a lo-fi background track for a relaxing experience. You can mute/unmute using the audio controls in the top-right corner.
+
+## 🛠️ Project Structure
+
+```
+aurafarm/
+├── src/
+│   ├── components/    # React components (GameCanvas, HUD, AudioPlayer)
+│   ├── hooks/          # Custom hooks (useGameLoop)
+│   ├── types/          # TypeScript type definitions
+│   ├── utils/          # Game helpers and configuration
+│   └── App.tsx         # Main application component
+├── public/             # Static assets
+├── server.js          # Express server for production
+└── render.yaml        # Render deployment configuration
+```
+
+## 📝 License
+
+MIT
+
+---
+
+Built with 🤖 [Claude Code](https://claude.ai/code)
