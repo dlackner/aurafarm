@@ -24,7 +24,8 @@ export const GAME_CONFIG = {
   TILE_SIZE: 12,  // Bigger tiles (was 8)
   RAKE_SIZE: 36,  // Bigger rake (was 24)
   MAX_PATTERNS: 10000,
-  PATTERN_FADE_SPEED: 0,  // No fade - patterns stay forever
+  PATTERN_FADE_SPEED: 0.002,  // Slow fade over time
+  PATTERN_LIFETIME: 8000,  // Patterns last 8 seconds
   SAND_RESET_SPEED: 0,  // No automatic reset
   AURA_LOSS: 10,
 };

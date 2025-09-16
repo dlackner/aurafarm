@@ -19,6 +19,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
   const patternCanvasRef = useRef<HTMLCanvasElement>(null);
   const lastRakePosition = useRef({ x: -1, y: -1 });
   const isDrawing = useRef(false);
+  const patternTimestamps = useRef<Map<number, number>>(new Map());
 
   // Initialize background once
   useEffect(() => {
@@ -49,7 +50,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     }
   }, []); // Only draw background once
 
-  // Handle pattern drawing
+  // Handle pattern drawing and fading
   useEffect(() => {
     const patternCanvas = patternCanvasRef.current;
     if (!patternCanvas) return;
@@ -73,6 +74,10 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
 
       // Only draw if moved enough
       if (distance > 2) {
+        // Store timestamp for this pattern segment
+        const patternId = Date.now();
+        patternTimestamps.current.set(patternId, Date.now());
+
         // Draw a darker sand trail
         ctx.strokeStyle = 'rgba(160, 140, 100, 0.6)';
         ctx.lineWidth = GAME_CONFIG.RAKE_SIZE;
@@ -103,6 +108,34 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       }
     }
   }, [gameState.rakePosition]);
+
+  // Fade patterns over time
+  useEffect(() => {
+    const fadeInterval = setInterval(() => {
+      const patternCanvas = patternCanvasRef.current;
+      if (!patternCanvas) return;
+
+      const ctx = patternCanvas.getContext('2d');
+      if (!ctx) return;
+
+      // Get current image data
+      const imageData = ctx.getImageData(0, 0, GAME_CONFIG.CANVAS_WIDTH, GAME_CONFIG.CANVAS_HEIGHT);
+      const data = imageData.data;
+
+      // Fade all pixels slightly
+      for (let i = 3; i < data.length; i += 4) {
+        // Only fade the alpha channel
+        if (data[i] > 0) {
+          data[i] = Math.max(0, data[i] - 2); // Fade by 2 per frame
+        }
+      }
+
+      // Put the faded image back
+      ctx.putImageData(imageData, 0, 0);
+    }, 100); // Run every 100ms
+
+    return () => clearInterval(fadeInterval);
+  }, []);
 
   // Redraw objects and rake
   useEffect(() => {
@@ -254,31 +287,6 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
 
     ctx.restore();
 
-    // Draw sushi if active
-    if (gameState.sushi && gameState.sushi.isActive) {
-      const sushi = gameState.sushi;
-
-      // Floating animation
-      const floatY = Math.sin(sushi.animationFrame) * 3;
-
-      // Draw pixelated sushi
-      ctx.fillStyle = '#ffffff'; // Rice (white)
-      ctx.fillRect(sushi.position.x, sushi.position.y + floatY, 24, 16);
-
-      // Salmon (orange/pink)
-      ctx.fillStyle = '#ff6b6b';
-      ctx.fillRect(sushi.position.x + 2, sushi.position.y + floatY - 4, 20, 6);
-
-      // Nori stripe (dark green)
-      ctx.fillStyle = '#2d4a2d';
-      ctx.fillRect(sushi.position.x + 10, sushi.position.y + floatY - 4, 4, 20);
-
-      // Sparkle effect
-      ctx.fillStyle = '#ffff00';
-      const sparkleOffset = Math.floor(sushi.animationFrame * 2) % 3;
-      ctx.fillRect(sushi.position.x + sparkleOffset * 8, sushi.position.y + floatY - 8, 2, 2);
-    }
-
     // Draw placement mode UI
     if (gameState.placementMode !== 'none' && gameState.placementsAvailable > 0) {
       // Draw placement indicator at mouse position
@@ -391,6 +399,31 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       );
 
       ctx.restore();
+    }
+
+    // Draw sushi on top of everything (including patterns)
+    if (gameState.sushi && gameState.sushi.isActive) {
+      const sushi = gameState.sushi;
+
+      // Floating animation
+      const floatY = Math.sin(sushi.animationFrame) * 3;
+
+      // Draw pixelated sushi on the main canvas (on top)
+      ctx.fillStyle = '#ffffff'; // Rice (white)
+      ctx.fillRect(sushi.position.x, sushi.position.y + floatY, 24, 16);
+
+      // Salmon (orange/pink)
+      ctx.fillStyle = '#ff6b6b';
+      ctx.fillRect(sushi.position.x + 2, sushi.position.y + floatY - 4, 20, 6);
+
+      // Nori stripe (dark green)
+      ctx.fillStyle = '#2d4a2d';
+      ctx.fillRect(sushi.position.x + 10, sushi.position.y + floatY - 4, 4, 20);
+
+      // Sparkle effect
+      ctx.fillStyle = '#ffff00';
+      const sparkleOffset = Math.floor(sushi.animationFrame * 2) % 3;
+      ctx.fillRect(sushi.position.x + sparkleOffset * 8, sushi.position.y + floatY - 8, 2, 2);
     }
 
   }, [gameState]);
