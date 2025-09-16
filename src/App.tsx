@@ -109,7 +109,7 @@ function App() {
             setGameState(prev => ({ ...prev, placementMode: 'rock' }));
             break;
           case '2':
-            setGameState(prev => ({ ...prev, placementMode: 'tree' }));
+            setGameState(prev => ({ ...prev, placementMode: 'tree' })); // Still 'tree' type but displays as cactus
             break;
           case '3':
             setGameState(prev => ({ ...prev, placementMode: 'pond' }));
@@ -174,8 +174,8 @@ function App() {
         />
       </div>
       <div className="instructions">
-        Click and drag to rake the sand • Avoid rocks, trees, and ponds • Collect sushi 🍣 to place new elements (+20 aura!)
-        {gameState.placementsAvailable > 0 && " • Press 1:Rock 2:Tree 3:Pond ESC:Cancel"}
+        Click and drag to rake the sand • Avoid rocks, cacti, and ponds • Collect sushi 🍣 to place new elements (+20 aura!)
+        {gameState.placementsAvailable > 0 && " • Press 1:Rock 2:Cactus 3:Pond ESC:Cancel"}
       </div>
     </div>
   );

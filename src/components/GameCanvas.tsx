@@ -194,37 +194,72 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
           });
         });
       } else if (object.type === 'tree') {
-        // Draw pixelated tree
-        const treePixels = [
-          [0, 1, 1, 0],
-          [1, 1, 1, 1],
-          [1, 1, 1, 1],
-          [0, 1, 1, 0],
-          [0, 1, 1, 0]
-        ];
-        const pixelSize = object.width / 4;
-        // Draw leaves
-        treePixels.forEach((row, y) => {
-          row.forEach((pixel, x) => {
-            if (pixel && y < 4) {
-              ctx.fillStyle = (x + y) % 2 === 0 ? '#2D5016' : '#3A6B35';
-              ctx.fillRect(
-                object.position.x + x * pixelSize,
-                object.position.y + y * pixelSize,
-                pixelSize,
-                pixelSize
-              );
-            }
-          });
-        });
-        // Draw trunk
-        ctx.fillStyle = '#654321';
+        // Draw pixelated cactus
+        const pixelSize = object.width / 6;
+
+        // Main cactus body (tall green column)
+        ctx.fillStyle = '#2d5a1e';
         ctx.fillRect(
-          object.position.x + object.width / 2 - pixelSize / 2,
-          object.position.y + object.height - pixelSize * 1.5,
+          object.position.x + object.width / 2 - pixelSize,
+          object.position.y + pixelSize,
+          pixelSize * 2,
+          object.height - pixelSize * 2
+        );
+
+        // Cactus ridges (lighter green stripes)
+        ctx.fillStyle = '#4a7c3c';
+        ctx.fillRect(
+          object.position.x + object.width / 2 - pixelSize + 2,
+          object.position.y + pixelSize,
+          4,
+          object.height - pixelSize * 2
+        );
+        ctx.fillRect(
+          object.position.x + object.width / 2 + pixelSize - 6,
+          object.position.y + pixelSize,
+          4,
+          object.height - pixelSize * 2
+        );
+
+        // Left arm
+        ctx.fillStyle = '#2d5a1e';
+        ctx.fillRect(
+          object.position.x + pixelSize / 2,
+          object.position.y + object.height / 2 - pixelSize / 2,
+          pixelSize * 1.5,
+          pixelSize
+        );
+        ctx.fillRect(
+          object.position.x + pixelSize / 2,
+          object.position.y + object.height / 2 - pixelSize * 1.5,
           pixelSize,
           pixelSize * 1.5
         );
+
+        // Right arm
+        ctx.fillRect(
+          object.position.x + object.width - pixelSize * 2,
+          object.position.y + object.height / 3,
+          pixelSize * 1.5,
+          pixelSize
+        );
+        ctx.fillRect(
+          object.position.x + object.width - pixelSize,
+          object.position.y + object.height / 3 - pixelSize,
+          pixelSize,
+          pixelSize * 1.5
+        );
+
+        // Spines (tiny dark dots)
+        ctx.fillStyle = '#1a3d0f';
+        for (let i = 0; i < 5; i++) {
+          ctx.fillRect(
+            object.position.x + object.width / 2 - pixelSize + Math.random() * pixelSize * 2,
+            object.position.y + pixelSize + i * (object.height / 6),
+            2,
+            2
+          );
+        }
       } else if (object.type === 'pond') {
         // Draw pixelated pond
         ctx.fillStyle = '#4A90A4';
@@ -310,8 +345,9 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       // Draw placement mode text
       ctx.fillStyle = '#00ff00';
       ctx.font = 'bold 12px monospace';
+      const elementName = gameState.placementMode === 'tree' ? 'cactus' : gameState.placementMode;
       ctx.fillText(
-        `Place ${gameState.placementMode} (${gameState.placementsAvailable} left) Click to place, +20 aura!`,
+        `Place ${elementName} (${gameState.placementsAvailable} left) Click to place, +20 aura!`,
         10,
         GAME_CONFIG.CANVAS_HEIGHT - 10
       );
