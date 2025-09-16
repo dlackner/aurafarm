@@ -317,27 +317,26 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       );
     }
 
-    // Draw paw prints on the pattern canvas (so they persist)
-    const patternCtx = patternCanvas.getContext('2d');
-    if (patternCtx && gameState.pawPrints.length > 0) {
+    // Draw paw prints on the main canvas (redrawn each frame, controlled by gameState)
+    if (gameState.pawPrints.length > 0) {
       gameState.pawPrints.forEach(paw => {
-        // Draw larger paw print (scaled up 50%)
-        patternCtx.fillStyle = 'rgba(60, 40, 20, 0.4)';
+        // Draw larger paw print (scaled up 50%) on main canvas
+        ctx.fillStyle = 'rgba(60, 40, 20, 0.5)';
         // Main pad
-        patternCtx.beginPath();
-        patternCtx.arc(paw.position.x, paw.position.y, 5, 0, Math.PI * 2);
-        patternCtx.fill();
+        ctx.beginPath();
+        ctx.arc(paw.position.x, paw.position.y, 5, 0, Math.PI * 2);
+        ctx.fill();
         // Toe pads
         for (let i = 0; i < 3; i++) {
-          patternCtx.beginPath();
-          patternCtx.arc(
+          ctx.beginPath();
+          ctx.arc(
             paw.position.x + (i - 1) * 5,
             paw.position.y - 7,
             2.5,
             0,
             Math.PI * 2
           );
-          patternCtx.fill();
+          ctx.fill();
         }
       });
     }

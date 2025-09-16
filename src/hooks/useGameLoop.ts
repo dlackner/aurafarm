@@ -197,6 +197,26 @@ export const useGameLoop = (
             }
             lastPatternTime.current = timestamp;
           }
+
+          // Check if rake is cleaning up paw prints
+          const originalPawCount = newState.pawPrints.length;
+          newState.pawPrints = newState.pawPrints.filter(paw => {
+            const dx = newState.rakePosition.x - paw.position.x;
+            const dy = newState.rakePosition.y - paw.position.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            // Remove paw print if rake is close enough
+            if (distance < GAME_CONFIG.RAKE_SIZE) {
+              console.log('Cleaned up a paw print!');
+              return false; // Remove this paw print
+            }
+            return true; // Keep this paw print
+          });
+
+          // Give small aura bonus for cleaning paw prints
+          const pawsCleaned = originalPawCount - newState.pawPrints.length;
+          if (pawsCleaned > 0) {
+            newState.aura = Math.min(newState.maxAura, newState.aura + (pawsCleaned * 0.5));
+          }
         }
       }
 
