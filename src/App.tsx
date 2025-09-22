@@ -2,7 +2,6 @@ import React, { useState, useCallback, useEffect } from 'react';
 import './App.css';
 import { GameCanvas } from './components/GameCanvas';
 import { HUD } from './components/HUD';
-import { AudioPlayer } from './components/AudioPlayer';
 import { useGameLoop } from './hooks/useGameLoop';
 import { GameState, InputState } from './types/game';
 import { generateGardenObjects, GAME_CONFIG } from './utils/gameHelpers';
@@ -165,7 +164,6 @@ function App() {
           isGameOver={gameState.isGameOver}
           onRestart={handleRestart}
         />
-        <AudioPlayer />
         <GameCanvas
           gameState={gameState}
           onMouseMove={handleMouseMove}

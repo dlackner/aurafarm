@@ -152,29 +152,6 @@ canvas {
   box-shadow: 0 2px 0 #2e7d32;
 }
 
-.audio-controls {
-  position: absolute;
-  top: 30px;
-  right: 30px;
-  z-index: 10;
-  display: flex;
-  gap: 8px;
-}
-
-.mute-button {
-  background: rgba(0, 0, 0, 0.7);
-  border: 2px solid #fff;
-  color: white;
-  padding: 8px 12px;
-  font-size: 20px;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: all 0.3s;
-}
-
-.mute-button:hover {
-  background: rgba(255, 255, 255, 0.2);
-}
 
 .instructions {
   margin-top: 20px;
@@ -215,15 +192,6 @@ canvas {
     font-size: 8px;
   }
 
-  .audio-controls {
-    top: 10px;
-    right: 10px;
-  }
-
-  .mute-button {
-    padding: 6px 10px;
-    font-size: 16px;
-  }
 
   .instructions {
     font-size: 8px;
