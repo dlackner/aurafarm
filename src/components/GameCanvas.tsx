@@ -78,31 +78,61 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         const patternId = Date.now();
         patternTimestamps.current.set(patternId, Date.now());
 
-        // Draw a darker sand trail
-        ctx.strokeStyle = 'rgba(160, 140, 100, 0.6)';
-        ctx.lineWidth = GAME_CONFIG.RAKE_SIZE;
+        // Draw beautiful zen sand patterns
+        const angle = Math.atan2(dy, dx);
+
+        // Create gradient for more depth
+        const gradient = ctx.createLinearGradient(
+          lastX, lastY,
+          currentX, currentY
+        );
+        gradient.addColorStop(0, 'rgba(255, 248, 220, 0.3)');  // Light sand
+        gradient.addColorStop(0.5, 'rgba(245, 235, 200, 0.4)');
+        gradient.addColorStop(1, 'rgba(255, 248, 220, 0.3)');
+
+        // Draw main rake path with gradient
+        ctx.strokeStyle = gradient;
+        ctx.lineWidth = GAME_CONFIG.RAKE_SIZE * 0.8;
         ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
 
         ctx.beginPath();
         ctx.moveTo(lastX + GAME_CONFIG.RAKE_SIZE / 2, lastY + GAME_CONFIG.RAKE_SIZE / 2);
         ctx.lineTo(currentX + GAME_CONFIG.RAKE_SIZE / 2, currentY + GAME_CONFIG.RAKE_SIZE / 2);
         ctx.stroke();
 
-        // Draw rake teeth marks
-        const angle = Math.atan2(dy, dx);
+        // Draw elegant rake teeth lines
         for (let i = 0; i < 5; i++) {
-          const offset = (i - 2) * 4;
+          const offset = (i - 2) * 7;  // Wider spacing
           const perpX = Math.cos(angle + Math.PI / 2) * offset;
           const perpY = Math.sin(angle + Math.PI / 2) * offset;
 
-          ctx.strokeStyle = 'rgba(140, 120, 80, 0.7)';
-          ctx.lineWidth = 2;
+          // Create subtle waves in the lines
+          const waveOffset = Math.sin(i * Math.PI / 4) * 2;
+
+          // Light grooves with shadow effect
+          ctx.strokeStyle = 'rgba(245, 235, 200, 0.5)';  // Lighter color
+          ctx.lineWidth = 3;
+          ctx.shadowColor = 'rgba(200, 180, 140, 0.3)';
+          ctx.shadowBlur = 2;
 
           ctx.beginPath();
           ctx.moveTo(lastX + GAME_CONFIG.RAKE_SIZE / 2 + perpX, lastY + GAME_CONFIG.RAKE_SIZE / 2 + perpY);
-          ctx.lineTo(currentX + GAME_CONFIG.RAKE_SIZE / 2 + perpX, currentY + GAME_CONFIG.RAKE_SIZE / 2 + perpY);
+          ctx.lineTo(currentX + GAME_CONFIG.RAKE_SIZE / 2 + perpX + waveOffset, currentY + GAME_CONFIG.RAKE_SIZE / 2 + perpY);
+          ctx.stroke();
+
+          // Add highlight for depth
+          ctx.strokeStyle = 'rgba(255, 255, 240, 0.3)';
+          ctx.lineWidth = 1;
+          ctx.shadowBlur = 0;
+
+          ctx.beginPath();
+          ctx.moveTo(lastX + GAME_CONFIG.RAKE_SIZE / 2 + perpX - 1, lastY + GAME_CONFIG.RAKE_SIZE / 2 + perpY);
+          ctx.lineTo(currentX + GAME_CONFIG.RAKE_SIZE / 2 + perpX - 1 + waveOffset, currentY + GAME_CONFIG.RAKE_SIZE / 2 + perpY);
           ctx.stroke();
         }
+
+        ctx.shadowBlur = 0;  // Reset shadow
 
         lastRakePosition.current = { x: currentX, y: currentY };
       }
@@ -122,11 +152,11 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       const imageData = ctx.getImageData(0, 0, GAME_CONFIG.CANVAS_WIDTH, GAME_CONFIG.CANVAS_HEIGHT);
       const data = imageData.data;
 
-      // Fade all pixels slightly
+      // Fade all pixels gently
       for (let i = 3; i < data.length; i += 4) {
         // Only fade the alpha channel
         if (data[i] > 0) {
-          data[i] = Math.max(0, data[i] - 2); // Fade by 2 per frame
+          data[i] = Math.max(0, data[i] - 1); // Gentler fade
         }
       }
 
@@ -300,23 +330,47 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     ctx.fillStyle = gradient;
     ctx.fillRect(rakeX - 5, rakeY - 5, clearSize, clearSize);
 
-    // Draw pixelated rake
-    // Draw handle
-    ctx.fillStyle = '#8B4513';
-    ctx.fillRect(rakeX + GAME_CONFIG.RAKE_SIZE / 2 - 2, rakeY, 4, GAME_CONFIG.RAKE_SIZE - 6);
+    // Draw elegant rake cursor
+    // Draw bamboo handle with gradient
+    const handleGradient = ctx.createLinearGradient(
+      rakeX + GAME_CONFIG.RAKE_SIZE / 2 - 3,
+      rakeY,
+      rakeX + GAME_CONFIG.RAKE_SIZE / 2 + 3,
+      rakeY
+    );
+    handleGradient.addColorStop(0, '#D4A574');
+    handleGradient.addColorStop(0.5, '#E5C49C');
+    handleGradient.addColorStop(1, '#D4A574');
 
-    // Draw rake head
-    ctx.fillStyle = '#654321';
-    ctx.fillRect(rakeX + 2, rakeY + GAME_CONFIG.RAKE_SIZE - 8, GAME_CONFIG.RAKE_SIZE - 4, 4);
+    ctx.fillStyle = handleGradient;
+    ctx.fillRect(rakeX + GAME_CONFIG.RAKE_SIZE / 2 - 3, rakeY, 6, GAME_CONFIG.RAKE_SIZE - 8);
 
-    // Draw rake teeth
-    ctx.fillStyle = '#4A4A4A';
+    // Draw rake head with wood texture
+    ctx.fillStyle = '#8B7355';
+    ctx.fillRect(rakeX + 2, rakeY + GAME_CONFIG.RAKE_SIZE - 10, GAME_CONFIG.RAKE_SIZE - 4, 6);
+
+    // Add wood grain detail
+    ctx.fillStyle = '#7A6449';
+    ctx.fillRect(rakeX + 2, rakeY + GAME_CONFIG.RAKE_SIZE - 9, GAME_CONFIG.RAKE_SIZE - 4, 1);
+    ctx.fillRect(rakeX + 2, rakeY + GAME_CONFIG.RAKE_SIZE - 7, GAME_CONFIG.RAKE_SIZE - 4, 1);
+
+    // Draw polished metal teeth
     for (let i = 0; i < 5; i++) {
+      // Teeth gradient for metallic look
+      ctx.fillStyle = '#C0C0C0';
       ctx.fillRect(
-        rakeX + 3 + i * 4,
+        rakeX + 3 + i * 6,
         rakeY + GAME_CONFIG.RAKE_SIZE - 6,
         2,
-        6
+        7
+      );
+      // Highlight on teeth
+      ctx.fillStyle = '#E8E8E8';
+      ctx.fillRect(
+        rakeX + 3 + i * 6,
+        rakeY + GAME_CONFIG.RAKE_SIZE - 6,
+        1,
+        7
       );
     }
 
