@@ -45,7 +45,7 @@ body {
   position: relative;
   display: inline-block;
   background: #2a2a2a;
-  padding: 20px;
+  padding: 15px;
   border-radius: 8px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
   margin: 0 auto;
@@ -63,20 +63,23 @@ canvas {
 }
 
 .hud {
-  position: absolute;
-  top: 30px;
-  left: 30px;
   color: white;
   font-family: 'Press Start 2P', cursive;
-  z-index: 10;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
 }
 
 .aura-container {
   background: rgba(0, 0, 0, 0.7);
-  padding: 12px;
-  border-radius: 4px;
+  padding: 12px 20px;
+  border-radius: 8px;
   border: 2px solid #fff;
-  min-width: 200px;
+  min-width: 300px;
+  max-width: 500px;
+  width: 100%;
 }
 
 .aura-label {
@@ -177,15 +180,12 @@ canvas {
   }
 
   .hud {
-    top: 10px;
-    left: 10px;
-    transform: scale(0.85);
-    transform-origin: top left;
+    margin-bottom: 10px;
   }
 
   .aura-container {
-    min-width: 150px;
-    padding: 8px;
+    min-width: 250px;
+    padding: 8px 12px;
   }
 
   .aura-label {

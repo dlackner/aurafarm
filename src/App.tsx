@@ -157,13 +157,13 @@ function App() {
   return (
     <div className="App">
       <h1 className="game-title">AURA FARM</h1>
+      <HUD
+        aura={gameState.aura}
+        maxAura={gameState.maxAura}
+        isGameOver={gameState.isGameOver}
+        onRestart={handleRestart}
+      />
       <div className="game-container">
-        <HUD
-          aura={gameState.aura}
-          maxAura={gameState.maxAura}
-          isGameOver={gameState.isGameOver}
-          onRestart={handleRestart}
-        />
         <GameCanvas
           gameState={gameState}
           onMouseMove={handleMouseMove}
