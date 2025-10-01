@@ -376,12 +376,13 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
 
     ctx.restore();
 
-    // Draw placement mode UI
+    // Draw placement mode UI with more subtle styling
     if (gameState.placementMode !== 'none' && gameState.placementsAvailable > 0) {
-      // Draw placement indicator at mouse position
+      // Draw subtle placement indicator at mouse position
       ctx.save();
-      ctx.globalAlpha = 0.5;
-      ctx.strokeStyle = '#00ff00';
+      ctx.globalAlpha = 0.4;
+      ctx.strokeStyle = '#ffd700'; // Gold color to match aura theme
+      ctx.setLineDash([5, 5]); // Dashed line for subtlety
       ctx.lineWidth = 2;
 
       const width = gameState.placementMode === 'pond' ? 96 : gameState.placementMode === 'tree' ? 48 : 36;
@@ -394,17 +395,39 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         height
       );
 
+      // Add a subtle fill to show the placement area
+      ctx.globalAlpha = 0.1;
+      ctx.fillStyle = '#ffd700';
+      ctx.fillRect(
+        gameState.rakePosition.x - width/2,
+        gameState.rakePosition.y - height/2,
+        width,
+        height
+      );
+
+      ctx.setLineDash([]); // Reset dash
       ctx.restore();
 
-      // Draw placement mode text
-      ctx.fillStyle = '#00ff00';
-      ctx.font = 'bold 12px monospace';
+      // Draw placement mode text with better styling
+      ctx.save();
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.8)'; // Dark background for readability
+      const textWidth = 380;
+      ctx.fillRect(5, GAME_CONFIG.CANVAS_HEIGHT - 30, textWidth, 25);
+
+      // Gold border for the text box
+      ctx.strokeStyle = '#ffd700';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(5, GAME_CONFIG.CANVAS_HEIGHT - 30, textWidth, 25);
+
+      ctx.fillStyle = '#ffd700'; // Gold text
+      ctx.font = 'bold 11px monospace';
       const elementName = gameState.placementMode === 'tree' ? 'cactus' : gameState.placementMode;
       ctx.fillText(
-        `Place ${elementName} (${gameState.placementsAvailable} left) Click to place, +20 aura!`,
+        `🍣 Place ${elementName} (${gameState.placementsAvailable} left) • Click to place • +20 aura`,
         10,
-        GAME_CONFIG.CANVAS_HEIGHT - 10
+        GAME_CONFIG.CANVAS_HEIGHT - 12
       );
+      ctx.restore();
     }
 
     // Draw paw prints on the main canvas (redrawn each frame, controlled by gameState)

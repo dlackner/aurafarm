@@ -24,16 +24,26 @@ export const useGameLoop = (
     setGameState(prevState => {
       if (prevState.isGameOver) return prevState;
 
-      console.log('GAMELOOP START: Previous patterns:', prevState.rakePatterns.length);
-
       let newState = {
         ...prevState,
         rakePatterns: [...prevState.rakePatterns],  // Make sure to copy the array
         pawPrints: [...prevState.pawPrints],
+        coveredTiles: new Set(prevState.coveredTiles || []), // Copy the Set with safety check
       };
       newState.isColliding = false;
 
-      console.log('GAMELOOP: Copied patterns:', newState.rakePatterns.length);
+      // Only run game logic if we're in playing phase
+      if (prevState.gamePhase !== 'playing') return prevState;
+
+      // Update timer
+      newState.currentTime = Date.now();
+      const elapsedSeconds = Math.floor((newState.currentTime - newState.startTime) / 1000);
+
+      // Check for time up
+      if (elapsedSeconds >= newState.timeLimit) {
+        newState.gamePhase = newState.coverage >= 95 ? 'victory' : 'gameOver';
+        return newState;
+      }
 
       // Spawn dog occasionally (every 15-30 seconds)
       const DOG_SPAWN_MIN = 15000;
@@ -54,7 +64,6 @@ export const useGameLoop = (
             facingRight: !fromRight
           };
           newState.lastDogSpawn = timestamp;
-          console.log('DOG SPAWNED!');
         }
       }
 
@@ -110,7 +119,6 @@ export const useGameLoop = (
             animationFrame: 0
           };
           newState.lastSushiSpawn = timestamp;
-          console.log('SUSHI SPAWNED!');
         }
       }
 
@@ -125,7 +133,6 @@ export const useGameLoop = (
 
         if (distance < GAME_CONFIG.RAKE_SIZE + 20) {
           // Collected sushi!
-          console.log('SUSHI COLLECTED!');
           newState.sushi = null;
           newState.placementsAvailable += 1;
           // Could show a selection UI here, for now just cycle through options
@@ -135,21 +142,13 @@ export const useGameLoop = (
         }
       }
 
-      // Log input state periodically
-      if (timestamp % 1000 < 20) {
-        console.log('GAMELOOP: inputState.isMouseDown =', inputStateRef.current.isMouseDown, 'mousePos:', inputStateRef.current.mousePosition);
-      }
-
       if (inputStateRef.current.isMouseDown) {
-        console.log('GAMELOOP: Mouse is down, processing movement');
         const dx = inputStateRef.current.mousePosition.x - newState.rakePosition.x;
         const dy = inputStateRef.current.mousePosition.y - newState.rakePosition.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
-        console.log('GAMELOOP: Distance moved:', distance);
 
-        if (distance > 2) {
-          console.log('GAMELOOP: Distance > 2, updating position');
-          const moveSpeed = 0.15;
+        if (distance > 1) { // More responsive - trigger on smaller movements
+          const moveSpeed = 0.25; // Faster, more responsive movement
           newState.rakePosition = {
             x: newState.rakePosition.x + (dx * moveSpeed),
             y: newState.rakePosition.y + (dy * moveSpeed),
@@ -163,6 +162,33 @@ export const useGameLoop = (
             GAME_CONFIG.CANVAS_HEIGHT - GAME_CONFIG.RAKE_SIZE,
             newState.rakePosition.y
           ));
+
+          // ALWAYS track coverage when moving - cover a larger area for more satisfying raking
+          const tileSize = 15; // Smaller tiles = more granular coverage
+          const rakeRadius = 25; // Cover tiles in a larger radius around rake
+
+          // Cover multiple tiles in a circle around the rake for more satisfying coverage
+          for (let dx = -rakeRadius; dx <= rakeRadius; dx += tileSize/2) {
+            for (let dy = -rakeRadius; dy <= rakeRadius; dy += tileSize/2) {
+              // Only cover tiles within the rake's circular area
+              if (dx * dx + dy * dy <= rakeRadius * rakeRadius) {
+                const tileX = Math.floor((newState.rakePosition.x + dx) / tileSize);
+                const tileY = Math.floor((newState.rakePosition.y + dy) / tileSize);
+                const tileKey = `${tileX},${tileY}`;
+                newState.coveredTiles.add(tileKey);
+              }
+            }
+          }
+
+          // Calculate coverage percentage
+          const totalTiles = Math.floor(GAME_CONFIG.CANVAS_WIDTH / tileSize) *
+                            Math.floor(GAME_CONFIG.CANVAS_HEIGHT / tileSize);
+          newState.coverage = Math.min(100, (newState.coveredTiles.size / totalTiles) * 100);
+
+          // Check for victory condition
+          if (newState.coverage >= 95) {
+            newState.gamePhase = 'victory';
+          }
 
           // Check for collisions
           for (const object of newState.gardenObjects) {
@@ -181,19 +207,18 @@ export const useGameLoop = (
           }
 
           // Always add patterns when moving (regardless of collision)
-          console.log('GAMELOOP: Checking pattern timer:', timestamp - lastPatternTime.current);
-          if (timestamp - lastPatternTime.current > 10) {  // Very frequent patterns for continuous trail
-            console.log('GAMELOOP: Time to add pattern, isColliding:', newState.isColliding);
-            // Only add pattern if not colliding
-            if (!newState.isColliding) {
-              const newPattern = createRakePattern(newState.rakePosition);
-              console.log('GAMELOOP: Creating pattern at', newState.rakePosition);
-              // Create a new array with the new pattern
-              newState.rakePatterns = [...newState.rakePatterns, newPattern];
-              console.log('GAMELOOP: Pattern added! Total:', newState.rakePatterns.length);
+          if (lastPatternTime.current === 0 || timestamp - lastPatternTime.current > 5) {  // Even more frequent patterns for smoother trail
+            // Always track coverage when moving, even if colliding
+            const newPattern = createRakePattern(newState.rakePosition);
 
-              // Gain aura while raking (but not above max)
-              newState.aura = Math.min(newState.maxAura, newState.aura + 0.02);
+            // Only add visual pattern if not colliding, but always track coverage
+            if (!newState.isColliding) {
+              newState.rakePatterns = [...newState.rakePatterns, newPattern];
+            }
+
+            // Gain aura while raking (but not above max) - only if not colliding
+            if (!newState.isColliding) {
+              newState.aura = Math.min(newState.maxAura, newState.aura + 0.05); // More satisfying aura gain
             }
             lastPatternTime.current = timestamp;
           }
@@ -206,7 +231,6 @@ export const useGameLoop = (
             const distance = Math.sqrt(dx * dx + dy * dy);
             // Remove paw print if rake is close enough
             if (distance < GAME_CONFIG.RAKE_SIZE) {
-              console.log('Cleaned up a paw print!');
               return false; // Remove this paw print
             }
             return true; // Keep this paw print
@@ -226,8 +250,6 @@ export const useGameLoop = (
         newState.rakePatterns = newState.rakePatterns.slice(-GAME_CONFIG.MAX_PATTERNS);
       }
 
-      // Always log what we're returning
-      console.log('GAMELOOP END: Returning state with', newState.rakePatterns.length, 'patterns');
 
       return newState;
     });

@@ -38,6 +38,15 @@ export interface Sushi {
 
 export type PlacementMode = 'none' | 'rock' | 'tree' | 'pond';
 
+export type GamePhase = 'menu' | 'playing' | 'victory' | 'gameOver';
+
+export interface LeaderboardEntry {
+  name: string;
+  time: number;
+  coverage: number;
+  date: string;
+}
+
 export interface GameState {
   rakePosition: Position;
   aura: number;
@@ -55,6 +64,12 @@ export interface GameState {
   lastSushiSpawn: number;
   placementMode: PlacementMode;
   placementsAvailable: number;
+  gamePhase: GamePhase;
+  startTime: number;
+  currentTime: number;
+  timeLimit: number; // in seconds
+  coverage: number; // percentage 0-100
+  coveredTiles: Set<string>; // track which tiles have been raked
 }
 
 export interface InputState {

@@ -112,6 +112,206 @@ canvas {
   text-align: center;
 }
 
+/* Timer styles */
+.timer-container, .coverage-container {
+  background: rgba(0, 0, 0, 0.7);
+  padding: 12px 20px;
+  border-radius: 8px;
+  border: 2px solid #fff;
+  min-width: 150px;
+}
+
+.timer-label, .coverage-label {
+  font-size: 10px;
+  margin-bottom: 8px;
+  color: #ffd700;
+  letter-spacing: 1px;
+}
+
+.timer-value {
+  font-size: 20px;
+  color: #fff;
+  text-align: center;
+}
+
+.timer-value.urgent {
+  color: #ff6b6b;
+  animation: pulse 1s infinite;
+}
+
+.coverage-bar {
+  width: 100%;
+  height: 16px;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid #fff;
+  margin-bottom: 6px;
+  position: relative;
+  overflow: hidden;
+}
+
+.coverage-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4CAF50, #8BC34A);
+  transition: width 0.3s ease;
+}
+
+.coverage-value {
+  font-size: 8px;
+  color: #fff;
+  text-align: center;
+}
+
+/* Menu styles */
+.game-menu {
+  background: rgba(0, 0, 0, 0.8);
+  padding: 30px;
+  border-radius: 12px;
+  border: 3px solid #fff;
+  max-width: 600px;
+  margin: 20px auto;
+  color: white;
+}
+
+.menu-content h2 {
+  font-family: 'Press Start 2P', cursive;
+  color: #ffd700;
+  margin-bottom: 15px;
+  font-size: 18px;
+}
+
+.menu-content p {
+  margin-bottom: 20px;
+  font-size: 12px;
+  color: #ccc;
+}
+
+.start-button {
+  font-family: 'Press Start 2P', cursive;
+  background: linear-gradient(135deg, #4CAF50, #45a049);
+  color: white;
+  border: none;
+  padding: 15px 30px;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 8px;
+  margin: 20px 0;
+  box-shadow: 0 4px 0 #2e7d32;
+  transition: all 0.3s;
+}
+
+.start-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 #2e7d32;
+}
+
+.leaderboard {
+  margin-top: 30px;
+}
+
+.leaderboard h3 {
+  font-family: 'Press Start 2P', cursive;
+  color: #ffd700;
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+
+.leaderboard table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.leaderboard th, .leaderboard td {
+  padding: 8px;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 10px;
+}
+
+.leaderboard th {
+  color: #ffd700;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 8px;
+}
+
+.no-scores {
+  color: #999;
+  font-style: italic;
+  font-size: 12px;
+}
+
+.game-over-screen {
+  background: rgba(255, 0, 0, 0.1);
+  border: 2px solid #ff6b6b;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.game-over-screen h2 {
+  color: #ff6b6b;
+  font-family: 'Press Start 2P', cursive;
+  margin-bottom: 15px;
+}
+
+.game-over-screen p {
+  color: #fff;
+  margin: 10px 0;
+  font-size: 12px;
+}
+
+.victory-screen {
+  background: rgba(76, 175, 80, 0.2);
+  border: 2px solid #4CAF50;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.victory-screen h2 {
+  color: #4CAF50;
+  font-family: 'Press Start 2P', cursive;
+  margin-bottom: 15px;
+}
+
+.victory-screen p {
+  color: #fff;
+  margin: 10px 0;
+  font-size: 12px;
+}
+
+.name-input {
+  margin-top: 15px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.name-input input {
+  padding: 8px 12px;
+  font-size: 12px;
+  border: 2px solid #4CAF50;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+}
+
+.name-input button {
+  padding: 8px 16px;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 10px;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
 .game-over {
   position: fixed;
   top: 50%;

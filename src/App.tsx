@@ -2,8 +2,9 @@ import React, { useState, useCallback, useEffect } from 'react';
 import './App.css';
 import { GameCanvas } from './components/GameCanvas';
 import { HUD } from './components/HUD';
+import { GameMenu } from './components/GameMenu';
 import { useGameLoop } from './hooks/useGameLoop';
-import { GameState, InputState } from './types/game';
+import { GameState, InputState, LeaderboardEntry } from './types/game';
 import { generateGardenObjects, GAME_CONFIG } from './utils/gameHelpers';
 
 function App() {
@@ -24,12 +25,25 @@ function App() {
     lastSushiSpawn: 0,
     placementMode: 'none',
     placementsAvailable: 0,
+    gamePhase: 'menu',
+    startTime: 0,
+    currentTime: 0,
+    timeLimit: 120, // 2 minutes to rake the garden
+    coverage: 0,
+    coveredTiles: new Set<string>(),
   });
 
   const [inputState, setInputState] = useState<InputState>({
     mousePosition: { x: 0, y: 0 },
     isMouseDown: false,
   });
+
+  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>(() => {
+    const saved = localStorage.getItem('aurafarm-leaderboard');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const [playerName, setPlayerName] = useState('');
 
   useGameLoop(gameState, setGameState, inputState);
 
@@ -62,7 +76,6 @@ function App() {
   }, []);
 
   const handleMouseDown = useCallback(() => {
-    console.log('APP: Mouse down detected');
 
     // Check if we're in placement mode
     if (gameState.placementMode !== 'none' && gameState.placementsAvailable > 0) {
@@ -95,7 +108,6 @@ function App() {
   }, [gameState.placementMode, gameState.placementsAvailable, inputState.mousePosition]);
 
   const handleMouseUp = useCallback(() => {
-    console.log('APP: Mouse up detected');
     setInputState(prev => ({ ...prev, isMouseDown: false }));
   }, []);
 
@@ -124,16 +136,8 @@ function App() {
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [gameState.placementsAvailable]);
 
-  // Add debug logging for state changes
-  useEffect(() => {
-    console.log('APP: Game state updated, patterns:', gameState.rakePatterns.length);
-    if (gameState.rakePatterns.length > 0) {
-      console.log('APP: First pattern position:', gameState.rakePatterns[0].position);
-      console.log('APP: Last pattern position:', gameState.rakePatterns[gameState.rakePatterns.length - 1].position);
-    }
-  }, [gameState.rakePatterns]);
 
-  const handleRestart = useCallback(() => {
+  const startGame = useCallback(() => {
     setGameState({
       rakePosition: { x: GAME_CONFIG.CANVAS_WIDTH / 2, y: GAME_CONFIG.CANVAS_HEIGHT / 2 },
       aura: 100,
@@ -151,30 +155,88 @@ function App() {
       lastSushiSpawn: 0,
       placementMode: 'none',
       placementsAvailable: 0,
+      gamePhase: 'playing',
+      startTime: Date.now(),
+      currentTime: Date.now(),
+      timeLimit: 120,
+      coverage: 0,
+      coveredTiles: new Set<string>(),
     });
   }, []);
+
+  const handleRestart = useCallback(() => {
+    startGame();
+  }, [startGame]);
+
+  const submitScore = useCallback(() => {
+    if (!playerName.trim()) return;
+
+    const entry: LeaderboardEntry = {
+      name: playerName.trim(),
+      time: Math.floor((gameState.currentTime - gameState.startTime) / 1000),
+      coverage: gameState.coverage,
+      date: new Date().toISOString(),
+    };
+
+    const newLeaderboard = [...leaderboard, entry]
+      .sort((a, b) => b.coverage - a.coverage || a.time - b.time)
+      .slice(0, 10); // Keep top 10
+
+    setLeaderboard(newLeaderboard);
+    localStorage.setItem('aurafarm-leaderboard', JSON.stringify(newLeaderboard));
+    setGameState(prev => ({ ...prev, gamePhase: 'menu' }));
+    setPlayerName('');
+  }, [playerName, gameState, leaderboard]);
 
   return (
     <div className="App">
       <h1 className="game-title">AURA FARM</h1>
-      <HUD
-        aura={gameState.aura}
-        maxAura={gameState.maxAura}
-        isGameOver={gameState.isGameOver}
-        onRestart={handleRestart}
-      />
-      <div className="game-container">
-        <GameCanvas
-          gameState={gameState}
-          onMouseMove={handleMouseMove}
-          onMouseDown={handleMouseDown}
-          onMouseUp={handleMouseUp}
+
+      {gameState.gamePhase === 'menu' ? (
+        <GameMenu
+          onStartGame={startGame}
+          leaderboard={leaderboard}
         />
-      </div>
-      <div className="instructions">
-        Click and drag to rake the sand • Avoid rocks, cacti, and ponds • Collect sushi 🍣 to place new elements (+20 aura!)
-        {gameState.placementsAvailable > 0 && " • Press 1:Rock 2:Cactus 3:Pond ESC:Cancel"}
-      </div>
+      ) : gameState.gamePhase === 'victory' || gameState.gamePhase === 'gameOver' ? (
+        <GameMenu
+          onStartGame={startGame}
+          leaderboard={leaderboard}
+          isVictory={gameState.gamePhase === 'victory'}
+          coverage={gameState.coverage}
+          time={Math.floor((gameState.currentTime - gameState.startTime) / 1000)}
+          playerName={playerName}
+          onPlayerNameChange={setPlayerName}
+          onSubmitScore={submitScore}
+        />
+      ) : (
+        <>
+          <HUD
+            aura={gameState.aura}
+            maxAura={gameState.maxAura}
+            isGameOver={gameState.isGameOver}
+            onRestart={handleRestart}
+            timeRemaining={gameState.timeLimit - Math.floor((gameState.currentTime - gameState.startTime) / 1000)}
+            coverage={gameState.coverage}
+          />
+          <div className="game-container">
+            <GameCanvas
+              gameState={gameState}
+              onMouseMove={handleMouseMove}
+              onMouseDown={handleMouseDown}
+              onMouseUp={handleMouseUp}
+            />
+          </div>
+          <div className="instructions">
+            Rake {(95 - gameState.coverage).toFixed(1)}% more to complete! • Time: {gameState.timeLimit - Math.floor((gameState.currentTime - gameState.startTime) / 1000)}s
+            {gameState.placementsAvailable > 0 && (
+              <>
+                <br />
+                Press 1 (rock), 2 (cactus), 3 (pond) to select • Esc to cancel
+              </>
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 }
