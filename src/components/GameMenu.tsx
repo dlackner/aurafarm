@@ -53,6 +53,8 @@ export const GameMenu: React.FC<GameMenuProps> = ({
       <div className="menu-content">
         <h2>Time Challenge</h2>
         <p>Rake the entire garden before time runs out!</p>
+        <p>🐕 Watch out for dogs - they'll mess up your raked areas!</p>
+        <p>🍣 Collect sushi to place new garden elements</p>
         <button className="start-button" onClick={onStartGame}>
           Start Game
         </button>

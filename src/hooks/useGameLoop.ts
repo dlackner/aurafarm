@@ -73,6 +73,23 @@ export const useGameLoop = (
         newState.dog.position.x += newState.dog.velocity.x;
         newState.dog.animationFrame = (newState.dog.animationFrame + 0.2) % 4;
 
+        // Dog messes up the raked areas as it runs - remove coverage
+        const dogRadius = 30; // Area around dog that gets messed up
+        const tileSize = 15; // Same as raking tile size
+
+        // Remove covered tiles in the dog's path
+        for (let dx = -dogRadius; dx <= dogRadius; dx += tileSize/2) {
+          for (let dy = -dogRadius; dy <= dogRadius; dy += tileSize/2) {
+            // Only mess up tiles within the dog's area
+            if (dx * dx + dy * dy <= dogRadius * dogRadius) {
+              const tileX = Math.floor((newState.dog.position.x + dx) / tileSize);
+              const tileY = Math.floor((newState.dog.position.y + dy) / tileSize);
+              const tileKey = `${tileX},${tileY}`;
+              newState.coveredTiles.delete(tileKey); // Remove the covered tile
+            }
+          }
+        }
+
         // Add paw prints every few pixels
         if (Math.floor(newState.dog.position.x) % 15 === 0) {
           // Add two paw prints (front and back paws)
@@ -91,6 +108,11 @@ export const useGameLoop = (
             age: 0
           });
         }
+
+        // Recalculate coverage after dog messes things up
+        const totalTiles = Math.floor(GAME_CONFIG.CANVAS_WIDTH / tileSize) *
+                          Math.floor(GAME_CONFIG.CANVAS_HEIGHT / tileSize);
+        newState.coverage = Math.min(100, (newState.coveredTiles.size / totalTiles) * 100);
 
         // Remove dog when it goes off screen
         if (newState.dog.position.x < -50 || newState.dog.position.x > GAME_CONFIG.CANVAS_WIDTH + 50) {

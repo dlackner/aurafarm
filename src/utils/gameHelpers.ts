@@ -1,15 +1,15 @@
 import { GameObject, Position, RakePattern } from '../types/game';
 
-// Responsive canvas sizing - smaller, more focused garden
+// Responsive canvas sizing - optimized for mobile
 const getCanvasSize = () => {
-  const maxWidth = Math.min(window.innerWidth - 40, 500);  // Reduced from 800
-  const maxHeight = Math.min(window.innerHeight - 200, 400);  // Reduced from 600
+  const maxWidth = Math.min(window.innerWidth - 40, 500);  // Desktop max
+  const maxHeight = Math.min(window.innerHeight - 200, 400);  // Desktop max
 
-  // Mobile portrait mode
+  // Mobile portrait mode - use much more space
   if (window.innerWidth < 768) {
     return {
-      width: Math.min(window.innerWidth - 20, 400),
-      height: Math.min(window.innerHeight - 150, 350)
+      width: Math.min(window.innerWidth - 10, 450),  // More width, less margin
+      height: Math.min(window.innerHeight - 120, 400)  // More height, less UI space
     };
   }
 
